@@ -2,8 +2,9 @@
 CORTEX_M7.CPU_DCache=Enabled
 CORTEX_M7.CPU_ICache=Enabled
 CORTEX_M7.IPParameters=CPU_ICache,CPU_DCache
-FREERTOS.IPParameters=Tasks01,configENABLE_FPU
-FREERTOS.Tasks01=defaultTask,24,128,StartDefaultTask,Default,NULL,Dynamic,NULL,NULL
+FREERTOS.FootprintOK=true
+FREERTOS.IPParameters=Tasks01,configENABLE_FPU,FootprintOK
+FREERTOS.Tasks01=defaultTask,24,128,StartDefaultTask,Default,NULL,Dynamic,NULL,NULL;usbd,54,256,usb_device_task,Default,NULL,Static,usb_device_taskBuffer,usb_device_taskControlBlock
 FREERTOS.configENABLE_FPU=1
 File.Version=6
 I2C1.IPParameters=Timing

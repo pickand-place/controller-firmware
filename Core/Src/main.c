@@ -23,10 +23,13 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "tusb.h"
 
+#include "usb_descriptors.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
+typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
@@ -69,6 +72,18 @@ const osThreadAttr_t defaultTask_attributes = {
   .priority = (osPriority_t) osPriorityNormal,
   .stack_size = 128 * 4
 };
+/* Definitions for usbd */
+osThreadId_t usbdHandle;
+uint32_t usb_device_taskBuffer[ 256 ];
+osStaticThreadDef_t usb_device_taskControlBlock;
+const osThreadAttr_t usbd_attributes = {
+  .name = "usbd",
+  .stack_mem = &usb_device_taskBuffer[0],
+  .stack_size = sizeof(usb_device_taskBuffer),
+  .cb_mem = &usb_device_taskControlBlock,
+  .cb_size = sizeof(usb_device_taskControlBlock),
+  .priority = (osPriority_t) osPriorityRealtime6,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -89,6 +104,7 @@ static void MX_UART8_Init(void);
 static void MX_UART7_Init(void);
 static void MX_USB_OTG_FS_PCD_Init(void);
 void StartDefaultTask(void *argument);
+void usb_device_task(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -172,8 +188,12 @@ int main(void)
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
+  /* creation of usbd */
+  usbdHandle = osThreadNew(usb_device_task, NULL, &usbd_attributes);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */
@@ -941,6 +961,26 @@ void StartDefaultTask(void *argument)
     osDelay(1);
   }
   /* USER CODE END 5 */
+}
+
+/* USER CODE BEGIN Header_usb_device_task */
+/**
+* @brief Function implementing the usbd thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_usb_device_task */
+void usb_device_task(void *argument)
+{
+  /* USER CODE BEGIN usb_device_task */
+	(void) argument;
+	tusb_init();
+  /* Infinite loop */
+  for(;;)
+  {
+    tud_task();
+  }
+  /* USER CODE END usb_device_task */
 }
 
  /**
