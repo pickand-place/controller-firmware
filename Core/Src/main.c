@@ -36,6 +36,37 @@ typedef StaticTask_t osStaticThreadDef_t;
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
+/* Blink pattern
+ * - 250 ms  : device not mounted
+ * - 1000 ms : device mounted
+ * - 2500 ms : device is suspended
+ */
+enum  {
+  BLINK_NOT_MOUNTED = 250,
+  BLINK_MOUNTED     = 1000,
+  BLINK_SUSPENDED   = 2500,
+
+  BLINK_ALWAYS_ON   = UINT32_MAX,
+  BLINK_ALWAYS_OFF  = 0
+};
+
+static bool web_serial_connected = false;
+
+#ifdef DEBUG
+	#define URL  "localhost:9999"
+	#define URL_SCHEME  0 // 0: http, 1: https
+#else
+	#define URL  "pickand.place"
+	#define URL_SCHEME  1 // 0: http, 1: https
+#endif
+const tusb_desc_webusb_url_t desc_url =
+{
+  .bLength         = 3 + sizeof(URL) - 1,
+  .bDescriptorType = 3, // WEBUSB URL type
+  .bScheme         = URL_SCHEME,
+  .url             = URL
+};
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -943,6 +974,90 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
+// send characters to both CDC and WebUSB
+void echo_all(uint8_t buf[], uint32_t count)
+{
+  // echo to web serial
+  if ( web_serial_connected )
+  {
+    tud_vendor_write(buf, count);
+  }
+}
+
+// Invoked when device is mounted
+void tud_mount_cb(void)
+{
+  blink_interval_ms = BLINK_MOUNTED;
+}
+
+// Invoked when device is unmounted
+void tud_umount_cb(void)
+{
+  blink_interval_ms = BLINK_NOT_MOUNTED;
+}
+
+// Invoked when usb bus is suspended
+// remote_wakeup_en : if host allow us  to perform remote wakeup
+// Within 7ms, device must draw an average of current less than 2.5 mA from bus
+void tud_suspend_cb(bool remote_wakeup_en)
+{
+  (void) remote_wakeup_en;
+  blink_interval_ms = BLINK_SUSPENDED;
+}
+
+// Invoked when usb bus is resumed
+void tud_resume_cb(void)
+{
+  blink_interval_ms = BLINK_MOUNTED;
+}
+
+bool tud_vendor_control_request_cb(uint8_t rhport, tusb_control_request_t const * request)
+{
+  switch (request->bRequest)
+  {
+    case VENDOR_REQUEST_WEBUSB:
+      // match vendor request in BOS descriptor
+      // Get landing page url
+      return tud_control_xfer(rhport, request, (void*) &desc_url, desc_url.bLength);
+
+    case 0x22:
+      // Webserial simulate the CDC_REQUEST_SET_CONTROL_LINE_STATE (0x22) to
+      // connect and disconnect.
+      web_serial_connected = (request->wValue != 0);
+
+      // Always lit LED if connected
+      if ( web_serial_connected )
+      {
+        board_led_write(true);
+        blink_interval_ms = BLINK_ALWAYS_ON;
+
+        tud_vendor_write_str("\r\nTinyUSB WebUSB device example\r\n");
+      }else
+      {
+        blink_interval_ms = BLINK_MOUNTED;
+      }
+
+      // response with status OK
+      return tud_control_status(rhport, request);
+
+    default:
+      // stall unknown request
+      return false;
+  }
+
+  return true;
+}
+
+// Invoked when DATA Stage of VENDOR's request is complete
+bool tud_vendor_control_complete_cb(uint8_t rhport, tusb_control_request_t const * request)
+{
+  (void) rhport;
+  (void) request;
+
+  // nothing to do
+  return true;
+}
+
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN Header_StartDefaultTask */
@@ -973,7 +1088,6 @@ void StartDefaultTask(void *argument)
 void usb_device_task(void *argument)
 {
   /* USER CODE BEGIN usb_device_task */
-	(void) argument;
 	tusb_init();
   /* Infinite loop */
   for(;;)

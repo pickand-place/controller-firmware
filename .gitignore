@@ -341,5 +341,6 @@ local.properties
 # End of https://www.toptal.com/developers/gitignore/api/eclipse
 
 Debug/
+Release/
 
 # End of https://www.toptal.com/developers/gitignore/api/node,c,c++,go,visualstudiocode,macos,windows
