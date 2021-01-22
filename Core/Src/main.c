@@ -271,7 +271,7 @@ void SystemClock_Config(void)
 
   /** Supply configuration update enable
   */
-  HAL_PWREx_ConfigSupply(PWR_EXTERNAL_SOURCE_SUPPLY);
+  HAL_PWREx_ConfigSupply(PWR_LDO_SUPPLY);
   /** Configure the main internal regulator output voltage
   */
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
