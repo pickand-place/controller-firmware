@@ -29,6 +29,8 @@
 #include "tusb.h"
 
 #include "usb_descriptors.h"
+
+#include "retarget.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -214,6 +216,7 @@ int main(void)
   MX_UART7_Init();
   MX_USB_OTG_FS_PCD_Init();
   /* USER CODE BEGIN 2 */
+  RetargetInit(&huart2);
   HAL_GPIO_WritePin(DEBUGLED_PORT, DEBUGLED_PIN, 1);
   /* USER CODE END 2 */
 
@@ -237,8 +240,7 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_TIMERS */
 	/* start timers, add new ones, ... */
-	osTimerStart(debugled_timerHandle, pdMS_TO_TICKS(100));
-	osTimerStart(usbled_timerHandle, pdMS_TO_TICKS(BLINK_NOT_MOUNTED));
+
   /* USER CODE END RTOS_TIMERS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
@@ -764,7 +766,7 @@ static void MX_USART2_UART_Init(void)
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
   huart2.Init.Mode = UART_MODE_TX_RX;
-  huart2.Init.HwFlowCtl = UART_HWCONTROL_RTS_CTS;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart2.Init.OverSampling = UART_OVERSAMPLING_16;
   huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
   huart2.Init.ClockPrescaler = UART_PRESCALER_DIV1;
@@ -1108,9 +1110,12 @@ bool tud_vendor_control_complete_cb(uint8_t rhport,
 void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
+	osTimerStart(debugled_timerHandle, pdMS_TO_TICKS(100));
+	osTimerStart(usbled_timerHandle, pdMS_TO_TICKS(BLINK_NOT_MOUNTED));
 	/* Infinite loop */
 	for (;;) {
-		osDelay(1);
+		osDelay(100);
+		printf("\r\nHello");
 	}
   /* USER CODE END 5 */
 }
@@ -1153,6 +1158,7 @@ void debugled_timer_cb(void *argument)
 
 	HAL_GPIO_WritePin(DEBUGLED_PORT, DEBUGLED_PIN, debug_led_state);
 	debug_led_state = 1 - debug_led_state; // toggle
+
   /* USER CODE END debugled_timer_cb */
 }
 

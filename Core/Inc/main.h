@@ -72,6 +72,10 @@ void Error_Handler(void);
 #define DEBUG_LED1_GPIO_Port GPIOI
 #define DEBUG_LED2_Pin GPIO_PIN_13
 #define DEBUG_LED2_GPIO_Port GPIOC
+#define DEBUG_TX_Pin GPIO_PIN_2
+#define DEBUG_TX_GPIO_Port GPIOA
+#define DEBUG_RX_Pin GPIO_PIN_3
+#define DEBUG_RX_GPIO_Port GPIOA
 #define LIMIT_M3_Pin GPIO_PIN_15
 #define LIMIT_M3_GPIO_Port GPIOD
 #define LIMIT_M2_Pin GPIO_PIN_2
