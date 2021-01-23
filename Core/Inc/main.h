@@ -90,6 +90,10 @@ void Error_Handler(void);
 #define EXT_18_GPIO_Port GPIOA
 #define EXT_17_Pin GPIO_PIN_10
 #define EXT_17_GPIO_Port GPIOA
+#define USB_DM_Pin GPIO_PIN_11
+#define USB_DM_GPIO_Port GPIOA
+#define USB_DP_Pin GPIO_PIN_12
+#define USB_DP_GPIO_Port GPIOA
 #define EXT_16_Pin GPIO_PIN_13
 #define EXT_16_GPIO_Port GPIOH
 #define EXT_15_Pin GPIO_PIN_14

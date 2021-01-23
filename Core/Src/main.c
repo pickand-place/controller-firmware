@@ -44,6 +44,9 @@ typedef StaticTimer_t osStaticTimerDef_t;
 #define USBLED_PORT GPIOI
 #define USBLED_PIN GPIO_PIN_8
 
+#define DEBUGLED_PORT GPIOC
+#define DEBUGLED_PIN GPIO_PIN_13
+
 /* Blink pattern
  * - 250 ms  : device not mounted
  * - 1000 ms : device mounted
@@ -123,6 +126,14 @@ const osTimerAttr_t usbled_timer_attributes = {
   .cb_mem = &usbled_timerControlBlock,
   .cb_size = sizeof(usbled_timerControlBlock),
 };
+/* Definitions for debugled_timer */
+osTimerId_t debugled_timerHandle;
+osStaticTimerDef_t debugled_timerControlBlock;
+const osTimerAttr_t debugled_timer_attributes = {
+  .name = "debugled_timer",
+  .cb_mem = &debugled_timerControlBlock,
+  .cb_size = sizeof(debugled_timerControlBlock),
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -145,6 +156,7 @@ static void MX_USB_OTG_FS_PCD_Init(void);
 void StartDefaultTask(void *argument);
 void usb_device_task(void *argument);
 void usbled_timer_cb(void *argument);
+void debugled_timer_cb(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -220,8 +232,12 @@ int main(void)
   /* creation of usbled_timer */
   usbled_timerHandle = osTimerNew(usbled_timer_cb, osTimerPeriodic, NULL, &usbled_timer_attributes);
 
+  /* creation of debugled_timer */
+  debugled_timerHandle = osTimerNew(debugled_timer_cb, osTimerPeriodic, NULL, &debugled_timer_attributes);
+
   /* USER CODE BEGIN RTOS_TIMERS */
 	/* start timers, add new ones, ... */
+	osTimerStart(debugled_timerHandle, pdMS_TO_TICKS(100));
 	osTimerStart(usbled_timerHandle, pdMS_TO_TICKS(BLINK_NOT_MOUNTED));
   /* USER CODE END RTOS_TIMERS */
 
@@ -1031,6 +1047,17 @@ bool tud_vendor_control_request_cb(uint8_t rhport,
 		return tud_control_xfer(rhport, request, (void*) &desc_url,
 				desc_url.bLength);
 
+	case VENDOR_REQUEST_MICROSOFT:
+		if (request->wIndex == 7) {
+			// Get Microsoft OS 2.0 compatible descriptor
+			uint16_t total_len;
+			memcpy(&total_len, desc_ms_os_20 + 8, 2);
+
+			return tud_control_xfer(rhport, request, (void*) desc_ms_os_20,
+					total_len);
+		} else {
+			return false;
+		}
 	case 0x22:
 		// Webserial simulate the CDC_REQUEST_SET_CONTROL_LINE_STATE (0x22) to
 		// connect and disconnect.
@@ -1116,6 +1143,17 @@ void usbled_timer_cb(void *argument)
 	board_led_write(led_state);
 	led_state = 1 - led_state; // toggle
   /* USER CODE END usbled_timer_cb */
+}
+
+/* debugled_timer_cb function */
+void debugled_timer_cb(void *argument)
+{
+  /* USER CODE BEGIN debugled_timer_cb */
+	static bool debug_led_state = false;
+
+	HAL_GPIO_WritePin(DEBUGLED_PORT, DEBUGLED_PIN, debug_led_state);
+	debug_led_state = 1 - debug_led_state; // toggle
+  /* USER CODE END debugled_timer_cb */
 }
 
  /**
