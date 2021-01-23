@@ -214,7 +214,7 @@ int main(void)
   MX_UART7_Init();
   MX_USB_OTG_FS_PCD_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_GPIO_WritePin(DEBUGLED_PORT, DEBUGLED_PIN, 1);
   /* USER CODE END 2 */
 
   /* Init scheduler */
