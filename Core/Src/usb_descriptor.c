@@ -25,8 +25,8 @@ tusb_desc_device_t const desc_device =
     .bDeviceProtocol    = MISC_PROTOCOL_IAD,
     .bMaxPacketSize0    = CFG_TUD_ENDPOINT0_SIZE,
 
-    .idVendor           = 0xcafe,
-    .idProduct          = 0x99aa,
+    .idVendor           = 0,
+    .idProduct          = 0,
     .bcdDevice          = 0x0100,
 
     .iManufacturer      = 0x01,
@@ -154,7 +154,7 @@ char const* string_desc_arr [] =
   "pickand.place",                     // 1: Manufacturer
   "pickand.place Controller",              // 2: Product
   "9876",                      // 3: Serials, should use chip ID
-  "pickand.place Controller WebUSB"               // 4: Vendor Interface
+  "pickand.place WebUSB" // 4: Vendor interface
 };
 
 static uint16_t _desc_str[32];

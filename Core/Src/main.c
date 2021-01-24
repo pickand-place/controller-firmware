@@ -63,15 +63,13 @@ enum {
 static bool web_serial_connected = false;
 
 #ifdef DEBUG
-#define URL  "localhost:9999"
-#define URL_SCHEME  0 // 0: http, 1: https
+#define URL  "http://localhost:9999"
 #else
-	#define URL  "pickand.place"
-	#define URL_SCHEME  1 // 0: http, 1: https
+	#define URL  "https://pickand.place"
 #endif
 const tusb_desc_webusb_url_t desc_url = { .bLength = 3 + sizeof(URL) - 1,
 		.bDescriptorType = 3, // WEBUSB URL type
-		.bScheme = URL_SCHEME, .url = URL };
+		.bScheme = 255, .url = URL };
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
