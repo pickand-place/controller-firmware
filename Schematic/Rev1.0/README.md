@@ -2,9 +2,13 @@
 
 This is the first version of the board and contains errors. At time of writing is it still under test.
 
+## Test Table
+
+Here is a list of the different board modules and their state.
+
 | Module | Tested | Working | Notes |
 |---|:---:|:---:|---|
-| 24 to 3.3v Regulator | [x] | [x] | Works perfectly, everything is within specs. |
+| 24 to 3.3v Regulator | [x] | [x] | Working, everything is within specs. |
 | MCU | [x] | [x] | MCU is usable after errata 1 is fixed. |
 | Reset, Debug buttons | [x] | [x] | Sometimes, MCU do not properly recover from a reset press. Signal was tested and correct, probably a software issue. |
 | Debug LEDs | [x] | [x] | Working |
