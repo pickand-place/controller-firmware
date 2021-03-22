@@ -1106,7 +1106,7 @@ void StartDefaultTask(void *argument)
 	osTimerStart(usbled_timerHandle, pdMS_TO_TICKS(BLINK_NOT_MOUNTED));
 	/* Infinite loop */
 	for (;;) {
-		osDelay(100);
+		osDelay(1000);
 		printf("\r\nHello");
 	}
   /* USER CODE END 5 */
